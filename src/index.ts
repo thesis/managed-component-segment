@@ -51,7 +51,9 @@ export const eventHandler = async (
       },
       os: { name: uaParser.os.name },
       userAgent: uaParser.ua,
-      ...(Object.keys(traitProperties).length > 0 && { traits: traitProperties }),
+      ...(Object.keys(traitProperties).length > 0 && {
+        traits: traitProperties,
+      }),
     },
   }
 

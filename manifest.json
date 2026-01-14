@@ -15,5 +15,37 @@
       "description": "Segment uses serverside network requests to report data",
       "required": true
     }
+  },
+  "settings": {
+    "writeKey": {
+      "title": "Segment Source Write Key",
+      "type": "string",
+      "description": "Your Segment HTTP API source write key",
+      "required": true
+    },
+    "hostname": {
+      "title": "API Hostname",
+      "type": "string",
+      "description": "Segment API hostname (defaults to api.segment.io)",
+      "required": false,
+      "default": "api.segment.io"
+    }
+  },
+  "fields": {
+    "event": {
+      "title": "Event Name",
+      "type": "string",
+      "description": "Name of the event (for track calls)"
+    },
+    "userId": {
+      "title": "User ID",
+      "type": "string",
+      "description": "Unique identifier for the user"
+    },
+    "anonymousId": {
+      "title": "Anonymous ID",
+      "type": "string",
+      "description": "Anonymous identifier for the user"
+    }
   }
 }
