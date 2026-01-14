@@ -34,7 +34,6 @@ export const eventHandler = async (
     ...(eventType !== 'page' && payload.event && { event: payload.event }),
     ...(eventType !== 'page' && { anonymousId: payload.anonymousId }),
     ...(eventType !== 'page' && { userId: payload.userId }),
-    ...(eventType === 'page' && { name: client.title }),
     context: {
       ip: client.ip,
       locale: client.language,
@@ -51,14 +50,15 @@ export const eventHandler = async (
       },
       os: { name: uaParser.os.name },
       userAgent: uaParser.ua,
-      ...(Object.keys(traitProperties).length > 0 && {
-        traits: traitProperties,
-      }),
+      ...(eventType !== 'identify' &&
+        Object.keys(traitProperties).length > 0 && {
+          traits: traitProperties,
+        }),
     },
   }
 
   if (eventType === 'identify' || eventType === 'group') {
-    segmentPayload.traits = filteredPayload
+    segmentPayload.traits = { ...filteredPayload, ...traitProperties }
   } else {
     segmentPayload.properties = filteredPayload
   }
