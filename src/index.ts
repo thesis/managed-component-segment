@@ -1,4 +1,4 @@
-import { ComponentSettings, Manager, MCEvent } from '@managed-components/types'
+import {ComponentSettings, Manager, MCEvent} from '@managed-components/types'
 import UAParser from 'ua-parser-js'
 
 export const eventHandler = async (
@@ -7,9 +7,9 @@ export const eventHandler = async (
   event: MCEvent,
   settings: ComponentSettings
 ) => {
-  const { payload, client } = event
+  const {payload, client} = event
 
-  const { writeKey, hostname = 'api.segment.io' } = settings
+  const {writeKey, hostname = 'api.segment.io'} = settings
   const endpoint = `https://${hostname}/v1/${eventType}`
 
   // Prepare new payload
@@ -31,9 +31,9 @@ export const eventHandler = async (
 
   /* eslint-disable  @typescript-eslint/no-explicit-any */
   const segmentPayload: any = {
-    ...(eventType !== 'page' && payload.event && { event: payload.event }),
-    ...(eventType !== 'page' && { anonymousId: payload.anonymousId }),
-    ...(eventType !== 'page' && { userId: payload.userId }),
+    ...(eventType !== 'page' && payload.event && {event: payload.event}),
+    ...(eventType !== 'page' && {anonymousId: payload.anonymousId}),
+    ...(eventType !== 'page' && {userId: payload.userId}),
     context: {
       ip: client.ip,
       locale: client.language,
@@ -48,17 +48,17 @@ export const eventHandler = async (
         width: client.screenWidth,
         height: client.screenHeight,
       },
-      os: { name: uaParser.os.name },
+      os: {name: uaParser.os.name},
       userAgent: uaParser.ua,
       ...(eventType !== 'identify' &&
         Object.keys(traitProperties).length > 0 && {
-          traits: traitProperties,
-        }),
+        traits: traitProperties,
+      }),
     },
   }
 
   if (eventType === 'identify' || eventType === 'group') {
-    segmentPayload.traits = { ...filteredPayload, ...traitProperties }
+    segmentPayload.traits = {...filteredPayload, ...traitProperties}
   } else {
     segmentPayload.properties = filteredPayload
   }
@@ -89,6 +89,8 @@ export const eventHandler = async (
     Authorization: 'Basic ' + btoa(writeKey),
     'Content-Type': 'application/json',
   }
+
+  console.log({message: "Payload", payload: segmentPayload})
 
   manager.fetch(endpoint, {
     headers,
