@@ -14,12 +14,27 @@ export const eventHandler = async (
 
   // Prepare new payload
   const uaParser = new UAParser(client.userAgent).getResult()
+
+  // Extract trait- prefixed properties and filter out reserved fields
+  const reservedFields = ['userId', 'anonymousId', 'callType', 'event']
+  const traitProperties: Record<string, unknown> = {}
+  const filteredPayload: Record<string, unknown> = {}
+
+  for (const [key, value] of Object.entries(payload)) {
+    if (value === null) continue
+    if (key.startsWith('trait-')) {
+      traitProperties[key.slice('trait-'.length)] = value
+    } else if (!reservedFields.includes(key)) {
+      filteredPayload[key] = value
+    }
+  }
+
   /* eslint-disable  @typescript-eslint/no-explicit-any */
   const segmentPayload: any = {
-    ...(payload.event && { event: payload.event }),
-    callType: eventType,
-    anonymousId: payload.anonymousId,
-    userId: payload.userId,
+    ...(eventType !== 'page' && payload.event && { event: payload.event }),
+    ...(eventType !== 'page' && { anonymousId: payload.anonymousId }),
+    ...(eventType !== 'page' && { userId: payload.userId }),
+    ...(eventType === 'page' && { name: client.title }),
     context: {
       ip: client.ip,
       locale: client.language,
@@ -36,13 +51,14 @@ export const eventHandler = async (
       },
       os: { name: uaParser.os.name },
       userAgent: uaParser.ua,
+      ...(Object.keys(traitProperties).length > 0 && { traits: traitProperties }),
     },
   }
 
   if (eventType === 'identify' || eventType === 'group') {
-    segmentPayload.traits = payload
+    segmentPayload.traits = filteredPayload
   } else {
-    segmentPayload.properties = payload
+    segmentPayload.properties = filteredPayload
   }
 
   if (eventType === 'page') {
